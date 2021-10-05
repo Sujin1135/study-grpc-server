@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option go_package = "https://github.com/Sujin1135/study-grpc-server/blob/master/proto";
 
+import "google/protobuf/empty.proto";
+
 service ProductInfo {
   rpc addProduct(Product) returns (ProductID);
   rpc getProduct(ProductID) returns (Product);
