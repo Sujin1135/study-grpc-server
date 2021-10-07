@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 	"log"
 	"net"
-	pb "study-grpc-server/ecommerce"
+	pb "study-grpc-server/ecommerce/github.com/Sujin1135/study-grpc-server/blob/master/ecommerce"
 )
 
 const (
