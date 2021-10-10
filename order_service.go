@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"io"
 	"log"
 	"strings"
 	pb "study-grpc-server/order/order"
@@ -30,6 +31,21 @@ func (s *orderServer) GetOrders(searchQuery *wrappers.StringValue, stream pb.Ord
 		}
 	}
 	return nil
+}
+
+func (s *orderServer) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer) error {
+	ordersStr := "Updated Order IDs : "
+	for {
+		order, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&wrappers.StringValue{Value: "Orders processed " + ordersStr})
+		}
+		orderMap[order.Id] = *order
+
+		log.Printf("Order ID ", order.Id, ": Updated")
+
+		ordersStr += order.Id + ", "
+	}
 }
 
 func initSampleData() {
