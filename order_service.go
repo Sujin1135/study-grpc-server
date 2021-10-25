@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 	pb "study-grpc-server/order/order"
+	"time"
 )
 
 const (
@@ -41,6 +42,10 @@ func (s *orderServer) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer)
 	ordersStr := "Updated Order IDs : "
 	for {
 		order, err := stream.Recv()
+
+		// test the deadline example for client
+		time.Sleep(time.Second)
+
 		if err == io.EOF {
 			return stream.SendAndClose(&wrappers.StringValue{Value: "Orders processed " + ordersStr})
 		}
