@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	epb "google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"strings"
@@ -43,6 +46,20 @@ func (s *orderServer) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer)
 	for {
 		order, err := stream.Recv()
 
+		if order.Id == "-1" {
+			errorStatus := status.New(codes.InvalidArgument, "Invalid information received")
+			ds, err := errorStatus.WithDetails(
+				&epb.BadRequest_FieldViolation{
+					Field: "ID",
+					Description: fmt.Sprintf(
+						"Order ID received is not valid %s", order.Id),
+				})
+			if err == nil {
+				return errorStatus.Err()
+			}
+			return ds.Err()
+		}
+
 		// test the deadline example for client
 		time.Sleep(time.Second)
 
@@ -72,6 +89,7 @@ func (s *orderServer) ProcessOrders(stream pb.OrderManagement_ProcessOrdersServe
 	for {
 		orderId, err := stream.Recv()
 		log.Printf("Reading Proc order: %s", orderId)
+
 		if err == io.EOF {
 			log.Printf("EOF : %s", orderId)
 			for _, comb := range combinedShipmentMap {
