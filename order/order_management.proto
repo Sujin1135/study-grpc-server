@@ -5,6 +5,7 @@ import "google/protobuf/wrappers.proto";
 option go_package = "order/";
 
 service OrderManagement {
+  rpc addOrder(Order) returns (google.protobuf.StringValue);
   rpc getOrders(google.protobuf.StringValue) returns (stream Order);
   rpc updateOrders(stream Order) returns (google.protobuf.StringValue);
   rpc processOrders(stream google.protobuf.StringValue) returns (stream CombinedShipment);

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/Sujin1135/study-grpc-server/blob/master/ecommerce";
+option go_package = "ecommerce/";
 
 service ProductInfo {
   rpc addProduct(Product) returns (ProductID);

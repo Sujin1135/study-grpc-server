@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	epb "google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -21,6 +22,12 @@ var orderMap = make(map[string]pb.Order)
 
 type orderServer struct {
 	orderMap map[string]*pb.Order
+}
+
+func (s *orderServer) AddOrder(ctx context.Context, order *pb.Order) (*wrappers.StringValue, error) {
+	orderMap[order.Id] = *order
+	log.Printf("Order %v : %v - Added.", order.Id, order.Description)
+	return &wrappers.StringValue{Value: order.Id}, nil
 }
 
 func (s *orderServer) GetOrders(searchQuery *wrappers.StringValue, stream pb.OrderManagement_GetOrdersServer) error {
