@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/gofrs/uuid"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -29,6 +30,12 @@ func (s *server) AddProduct(ctx context.Context, in *pb.Product) (*pb.ProductID,
 	md, ok := metadata.FromIncomingContext(ctx)
 	log.Printf("single gRPC md is %v", md)
 	log.Printf("single gRPC ok is %v", ok)
+
+	header := metadata.Pairs("header-key", "val")
+	grpc.SendHeader(ctx, header)
+
+	trailer := metadata.Pairs("trailer-key", "val")
+	grpc.SetTrailer(ctx, trailer)
 
 	return &pb.ProductID{Value: in.Id}, status.New(codes.OK, "").Err()
 }

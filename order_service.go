@@ -63,6 +63,12 @@ func (s *orderServer) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer)
 
 		log.Printf("stream gRPC md is %v", md)
 		log.Printf("stream gRPC ok is %v", ok)
+
+		header := metadata.Pairs("header-key", "val")
+		stream.SendHeader(header)
+
+		trailer := metadata.Pairs("trailer-key", "val")
+		stream.SetTrailer(trailer)
 	}
 }
 
