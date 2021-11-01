@@ -1,30 +1,19 @@
 package main
 
-import (
-	"google.golang.org/grpc"
-	"log"
-	"net"
-	pb "study-grpc-server/ecommerce/ecommerce"
-	pb2 "study-grpc-server/order/order"
-)
+import "sync"
 
 const (
 	port = ":50051"
 )
 
 func main() {
-	initSampleData()
-	lis, err := net.Listen("tcp", port)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+	var wg sync.WaitGroup
+	for _, addr := range addrs {
+		wg.Add(1)
+		go func(addr string) {
+			defer wg.Done()
+			startServer(addr)
+		}(addr)
 	}
-	s := grpc.NewServer(
-		grpc.UnaryInterceptor(orderUnaryInterceptor),
-		grpc.StreamInterceptor(orderServerStreamInterceptor),
-	)
-	pb.RegisterProductInfoServer(s, &server{})
-	pb2.RegisterOrderManagementServer(s, &orderServer{})
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	wg.Wait()
 }
