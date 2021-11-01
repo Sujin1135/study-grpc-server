@@ -4,14 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	epb "google.golang.org/genproto/googleapis/rpc/errdetails"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"strings"
 	pb "study-grpc-server/order/order"
-	"time"
 )
 
 const (
@@ -52,31 +48,14 @@ func (s *orderServer) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer)
 	ordersStr := "Updated Order IDs : "
 	for {
 		order, err := stream.Recv()
-
-		if order.Id == "-1" {
-			errorStatus := status.New(codes.InvalidArgument, "Invalid information received")
-			ds, err := errorStatus.WithDetails(
-				&epb.BadRequest_FieldViolation{
-					Field: "ID",
-					Description: fmt.Sprintf(
-						"Order ID received is not valid %s", order.Id),
-				})
-			if err == nil {
-				return errorStatus.Err()
-			}
-			return ds.Err()
-		}
-
-		// test the deadline example for client
-		time.Sleep(time.Second)
-
 		if err == io.EOF {
+			// Finished reading the order stream.
 			return stream.SendAndClose(&wrappers.StringValue{Value: "Orders processed " + ordersStr})
 		}
+		// Update order
 		orderMap[order.Id] = *order
 
-		log.Printf("Order ID ", order.Id, ": Updated")
-
+		log.Printf("Order ID %v : Updated", order.Id)
 		ordersStr += order.Id + ", "
 	}
 }
