@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"google.golang.org/grpc/metadata"
 	"io"
 	"log"
 	"strings"
@@ -57,6 +58,11 @@ func (s *orderServer) UpdateOrders(stream pb.OrderManagement_UpdateOrdersServer)
 
 		log.Printf("Order ID %v : Updated", order.Id)
 		ordersStr += order.Id + ", "
+
+		md, ok := metadata.FromIncomingContext(stream.Context())
+
+		log.Printf("stream gRPC md is %v", md)
+		log.Printf("stream gRPC ok is %v", ok)
 	}
 }
 

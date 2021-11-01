@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gofrs/uuid"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"log"
 	pb "study-grpc-server/ecommerce/ecommerce"
@@ -24,6 +25,11 @@ func (s *server) AddProduct(ctx context.Context, in *pb.Product) (*pb.ProductID,
 	}
 	s.productMap[in.Id] = in
 	log.Printf("Product %v : %v - Added.", in.Id, in.Name)
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	log.Printf("single gRPC md is %v", md)
+	log.Printf("single gRPC ok is %v", ok)
+
 	return &pb.ProductID{Value: in.Id}, status.New(codes.OK, "").Err()
 }
 
