@@ -2,8 +2,10 @@ package main
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"io/ioutil"
 	"log"
 	"net"
 	pb "study-grpc-server/ecommerce/ecommerce"
@@ -13,6 +15,7 @@ const (
 	port    = ":50051"
 	crtFile = "server.crt"
 	keyFile = "server.key"
+	caFile  = "ca.crt"
 )
 
 func main() {
@@ -22,9 +25,25 @@ func main() {
 		log.Fatalf("failed to load key pair: %s", err)
 	}
 
+	certPool := x509.NewCertPool()
+	ca, err := ioutil.ReadFile(caFile)
+	if err != nil {
+		log.Fatalf("could not read ca certificate: %s", err)
+	}
+
+	if ok := certPool.AppendCertsFromPEM(ca); !ok {
+		log.Fatalf("failed to append ca certificate")
+	}
+
 	// 2. Enable the certification
 	opts := []grpc.ServerOption{
-		grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
+		grpc.Creds(
+			credentials.NewTLS(&tls.Config{
+				ClientAuth:   tls.RequireAndVerifyClientCert,
+				Certificates: []tls.Certificate{cert},
+				ClientCAs:    certPool,
+			},
+			)),
 	}
 
 	// 3. Create a gRPC server instance with the TLS certification
