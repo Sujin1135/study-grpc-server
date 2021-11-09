@@ -65,6 +65,9 @@ func (s *server) AddProduct(ctx context.Context, in *pb.Product) (*pb.ProductID,
 		s.productMap = make(map[string]*pb.Product)
 	}
 	s.productMap[in.Id] = in
+
+	log.Printf("Add product is %s", in.Id)
+
 	return &pb.ProductID{Value: in.Id}, nil
 }
 
